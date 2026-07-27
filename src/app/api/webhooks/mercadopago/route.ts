@@ -94,6 +94,7 @@ export async function POST(request: Request) {
     .update({
       status,
       mp_payment_id: String(payment.id),
+      ...(payment.payer?.email ? { customer_email: payment.payer.email } : {}),
       updated_at: new Date().toISOString(),
     })
     .eq("id", orderId);
