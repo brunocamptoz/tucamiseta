@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { updateProduct } from "./actions";
 
@@ -10,13 +11,16 @@ type ProductRow = {
   player_name: string | null;
   player_number: number | null;
   price: number;
+  image: string;
   product_stock: { size: string; stock: number }[];
 };
 
 export default async function AdminProductosPage() {
   const { data: products, error } = await supabaseAdmin
     .from("products")
-    .select("id, team, variant, player_name, player_number, price, product_stock(size, stock)")
+    .select(
+      "id, team, variant, player_name, player_number, price, image, product_stock(size, stock)"
+    )
     .order("team");
 
   if (error) {
@@ -32,48 +36,60 @@ export default async function AdminProductosPage() {
           <form
             key={product.id}
             action={updateProduct}
-            className="rounded-md border border-border p-4"
+            className="flex gap-4 rounded-md border border-border p-4"
           >
-            <input type="hidden" name="productId" value={product.id} />
-
-            <p className="font-medium">
-              {product.team}
-              {product.player_name
-                ? ` · ${product.player_name} ${product.player_number}`
-                : ""}
-            </p>
-            <p className="text-xs text-foreground/60">{product.variant}</p>
-
-            <label className="mt-3 block text-sm">
-              Precio
-              <input
-                type="number"
-                name="price"
-                defaultValue={product.price}
-                className="ml-2 w-28 rounded-md border border-border px-2 py-1"
+            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
+              <Image
+                src={product.image}
+                alt={`Camiseta ${product.team}`}
+                fill
+                sizes="96px"
+                className="object-cover"
               />
-            </label>
-
-            <div className="mt-3 flex flex-wrap gap-4">
-              {product.product_stock.map((s) => (
-                <label key={s.size} className="text-sm">
-                  Talle {s.size}
-                  <input
-                    type="number"
-                    name={`stock__${s.size}`}
-                    defaultValue={s.stock}
-                    className="ml-2 w-20 rounded-md border border-border px-2 py-1"
-                  />
-                </label>
-              ))}
             </div>
 
-            <button
-              type="submit"
-              className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-            >
-              Guardar
-            </button>
+            <div className="flex-1">
+              <input type="hidden" name="productId" value={product.id} />
+
+              <p className="font-medium">
+                {product.team}
+                {product.player_name
+                  ? ` · ${product.player_name} ${product.player_number}`
+                  : ""}
+              </p>
+              <p className="text-xs text-foreground/60">{product.variant}</p>
+
+              <label className="mt-3 block text-sm">
+                Precio
+                <input
+                  type="number"
+                  name="price"
+                  defaultValue={product.price}
+                  className="ml-2 w-28 rounded-md border border-border px-2 py-1"
+                />
+              </label>
+
+              <div className="mt-3 flex flex-wrap gap-4">
+                {product.product_stock.map((s) => (
+                  <label key={s.size} className="text-sm">
+                    Talle {s.size}
+                    <input
+                      type="number"
+                      name={`stock__${s.size}`}
+                      defaultValue={s.stock}
+                      className="ml-2 w-20 rounded-md border border-border px-2 py-1"
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <button
+                type="submit"
+                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                Guardar
+              </button>
+            </div>
           </form>
         ))}
       </div>
