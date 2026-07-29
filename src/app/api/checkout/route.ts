@@ -109,9 +109,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const initPoint = result.sandbox_init_point ?? result.init_point;
-
-    return NextResponse.json({ initPoint, orderId: order.id });
+    return NextResponse.json({ initPoint: result.init_point, orderId: order.id });
   } catch (err) {
     const message =
       err && typeof err === "object" && "message" in err
